@@ -187,12 +187,13 @@ input[type=range]{width:100%;accent-color:var(--orange);height:28px}
 
 /* Tray */
 .tray-3d{perspective:900px;margin:18px auto 8px;max-width:min(420px,92%)}
-.tray{display:grid;grid-template-columns:1.25fr 1fr;grid-template-rows:1fr 1fr;gap:10px;padding:14px;aspect-ratio:1.45;border-radius:22px;
+.tray{display:grid;grid-template-columns:1.3fr 1fr 1fr;grid-template-rows:1fr 1fr;gap:10px;padding:14px;aspect-ratio:1.45;border-radius:22px;
   background:linear-gradient(145deg,var(--steel1),var(--steel2));box-shadow:inset 0 2px 0 rgb(255 255 255 / .35),0 24px 40px -18px rgb(0 0 0 / .55);
   transform:rotateX(34deg) rotateZ(-4deg);transform-style:preserve-3d;transition:transform .5s}
 .tray:hover{transform:rotateX(26deg) rotateZ(-2deg)}
 .slot{border:0;border-radius:14px;background:linear-gradient(160deg,var(--steel2),var(--steel1));box-shadow:inset 0 6px 14px rgb(0 0 0 / .35);position:relative;overflow:hidden;cursor:pointer;display:grid;place-items:center;padding:0}
 .slot.big{grid-row:1/3}
+.slot[data-slot="3"]{grid-column:2/4}
 .slot span{font:700 1rem var(--body);color:rgb(255 255 255 / .55)}
 .slot img{position:absolute;inset:6px;width:calc(100% - 12px);height:calc(100% - 12px);object-fit:cover;border-radius:10px;animation:drop .45s cubic-bezier(.2,1.4,.4,1) both}
 @keyframes drop{from{transform:translateZ(80px) scale(1.3);opacity:0}to{transform:none;opacity:1}}
