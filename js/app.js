@@ -1,4 +1,5 @@
 import { createBody } from './body3d.js?v=3';
+import { KB, FORM, patternOf, answer, parseRange, advise, review } from './coach.js?v=5';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
@@ -199,7 +200,7 @@ $('#gears').innerHTML = [1, 2, 3, 4].map(w => {
 }).join('');
 
 function calc() {
-  const age = +$('#inAge').value || 21, kg = +$('#inKg').value || 73, cm = +$('#inCm').value || 175;
+  const age = +$('#inAge').value || 18, kg = +$('#inKg').value || 73, cm = +$('#inCm').value || 175;
   const bmr = 10 * kg + 6.25 * cm - 5 * age + 5, tdee = bmr * 1.55;
   const kcal = Math.round((tdee - 550) / 50) * 50;
   const p = Math.round(kg * 2 / 5) * 5, f = Math.round(kg * 0.8 / 5) * 5;
@@ -258,14 +259,55 @@ function renderTrain() {
         <p class="cue">${esc(cue)}</p>
         <p class="alt"><span class="fine">No machine free?</span> ${esc(alt)}</p>
         <div class="ex-tags">${groups.map(g => `<span>${GROUP_LABEL[g]}</span>`).join('')}${v ? '<span class="v">V-taper</span>' : ''}</div>
+        ${logBlock(name, rx)}
+        ${formBlock(name)}
       </div></article>`;
   }).join('');
 }
+
+/* ---------- Weight log + form check ---------- */
+let logs = {}; try { logs = JSON.parse(store.get('vt-logs') || '{}'); } catch {}
+const saveLogs = () => store.set('vt-logs', JSON.stringify(logs));
+const refLinks = r => (r || []).map(n => `<sup><a href="#r${n}">${n}</a></sup>`).join('');
+function logBlock(name, rx) {
+  if (!parseRange(rx)) return `<p class="fine log-time">Timed: when every set reaches the top time, add 5 s.</p>`;
+  const L = logs[name] || [], last = L[L.length - 1];
+  const adv = advise(name, rx, L, WEEKS[week].rir);
+  const hist = L.slice(-3).reverse().map(e => `${e.kg} kg × ${e.reps}${e.rir !== '' && e.rir != null ? ` @${e.rir}` : ''}`).join(' · ');
+  return `<div class="log" data-n="${esc(name)}" data-rx="${esc(rx)}">
+    <div class="log-row">
+      <label>kg<input class="lkg" type="number" inputmode="decimal" step="0.5" min="0" value="${last ? last.kg : ''}" placeholder="0"></label>
+      <label>reps<input class="lreps" type="number" inputmode="numeric" min="0" max="50" placeholder="${parseRange(rx).lo}"></label>
+      <label>RIR<select class="lrir"><option value="">–</option>${[0, 1, 2, 3, 4].map(n => `<option>${n}</option>`).join('')}</select></label>
+      <button type="button" class="lsave">Log set</button>
+    </div>
+    <p class="adv ${adv.tone}"><b>Next:</b> ${adv.text}</p>
+    ${hist ? `<p class="fine hist">Recent: <span class="mono">${hist}</span></p>` : ''}
+  </div>`;
+}
+function formBlock(name) {
+  const f = FORM[patternOf(name)];
+  return `<details class="form"><summary>Form check</summary>
+    <div class="form-grid"><div><b class="ok">Good reps</b><ul>${f.good.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div>
+    <div><b class="no">Common mistakes</b><ul>${f.bad.map(x => `<li>${esc(x)}</li>`).join('')}</ul></div></div>
+    <p class="why"><b>Why:</b> ${esc(f.why)}${f.gap ? ' <span class="fine">(coaching practice, not from the plan\'s studies)</span>' : refLinks(f.r)}</p></details>`;
+}
+$('#exList').addEventListener('click', e => {
+  const b = e.target.closest('.lsave'); if (!b) return;
+  const box = b.closest('.log'), name = box.dataset.n;
+  const kg = parseFloat(box.querySelector('.lkg').value), reps = parseInt(box.querySelector('.lreps').value, 10);
+  if (!(kg >= 0) || !(reps > 0)) { box.querySelector('.adv').innerHTML = '<b>Next:</b> Enter the kg and the reps of your hardest set, then tap Log set.'; return; }
+  (logs[name] ||= []).push({ d: new Date().toISOString().slice(0, 10), kg, reps, rir: box.querySelector('.lrir').value });
+  logs[name] = logs[name].slice(-30);
+  saveLogs();
+  box.outerHTML = logBlock(name, box.dataset.rx);
+});
 $('#weekSel').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; week = +b.dataset.w; store.set('vt-week', week); renderTrain(); });
 $('#daySel').addEventListener('click', e => { const b = e.target.closest('button'); if (!b) return; day = b.dataset.d; store.set('vt-day', day); renderTrain(); });
 $$('.flip button').forEach(b => b.addEventListener('click', () => side?.face(b.dataset.face)));
 const exList = $('#exList');
 exList.addEventListener('click', e => { const a = e.target.closest('.anim'); if (a) a.classList.toggle('paused'); });
+exList.addEventListener('keydown', e => { if (e.key === 'Enter' && e.target.matches('.lkg,.lreps')) { e.preventDefault(); e.target.closest('.log').querySelector('.lsave').click(); } });
 exList.addEventListener('keydown', e => { const a = e.target.closest('.anim'); if (a && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); a.classList.toggle('paused'); } });
 const focusEx = card => side?.highlight(card ? card.dataset.g.split(' ') : DAY_GROUPS(day));
 exList.addEventListener('pointerover', e => { const c = e.target.closest('.ex'); if (c) focusEx(c); });
@@ -360,5 +402,79 @@ const secObs = new IntersectionObserver(es => es.forEach(e => {
   if (e.isIntersecting) links.forEach(a => a.classList.toggle('on', a.getAttribute('href') === '#' + e.target.id));
 }), { rootMargin: '-45% 0px -50% 0px' });
 $$('main .sec').forEach(s => secObs.observe(s));
+
+/* ---------- COACH ---------- */
+const coach = document.createElement('div');
+coach.innerHTML = `
+<button type="button" class="coach-fab" id="coachFab" aria-haspopup="dialog"><span class="dot"></span>Ask coach</button>
+<dialog class="coach" id="coachDlg" aria-label="Coach">
+  <div class="coach-head">
+    <div class="coach-id"><span class="avatar">C</span><div><b>Coach</b><span>Offline · answers from this plan's research</span></div></div>
+    <button type="button" class="x" id="coachClose" aria-label="Close">×</button>
+  </div>
+  <div class="coach-tabs" role="tablist">
+    <button type="button" role="tab" aria-selected="true" data-ct="ask">Ask</button>
+    <button type="button" role="tab" aria-selected="false" data-ct="review">My review</button>
+  </div>
+  <div class="coach-body" id="ctAsk">
+    <div class="chat" id="chat"></div>
+    <div class="chips" id="chips"></div>
+  </div>
+  <div class="coach-body" id="ctReview" hidden></div>
+  <form class="ask" id="askForm" autocomplete="off">
+    <input id="askIn" type="text" placeholder="e.g. Why am I not losing weight?" aria-label="Your question" enterkeyhint="send">
+    <button type="submit">Ask</button>
+  </form>
+</dialog>`;
+document.body.append(...coach.children);
+const dlg = $('#coachDlg'), chat = $('#chat');
+const SUGGEST = ['Can abs burn belly fat?', 'How much weight should I start with?', 'When should I add weight?', 'I missed a workout', 'Is rice bad?', 'Should I take creatine?', 'I slept badly, train?', 'I\'m stuck on the same weight'];
+$('#chips').innerHTML = SUGGEST.map(s => `<button type="button">${esc(s)}</button>`).join('');
+function bubble(html, who) { const d = document.createElement('div'); d.className = 'msg ' + who; d.innerHTML = html; chat.appendChild(d); d.scrollIntoView({ block: 'end', behavior: 'smooth' }); }
+function reply(q) {
+  bubble(esc(q), 'me');
+  const { best, related } = answer(q);
+  if (!best) {
+    bubble(`<p>I don't have a built-in answer for that, and I won't guess. Try one of these, or rephrase with a key word (protein, sleep, weight, belly, rice…).</p>${related.length ? `<div class="rel">${related.map(r => `<button type="button">${esc(r.t)}</button>`).join('')}</div>` : ''}`, 'bot');
+    return;
+  }
+  bubble(`<p class="lead">${esc(best.a)}</p>
+    <p><b>Why:</b> ${esc(best.why)}${best.gap ? '' : refLinks(best.r)}</p>
+    <p><b>Do this:</b> ${esc(best.do)}</p>
+    ${best.gap ? '<p class="fine">Not covered by this plan\'s studies; this is common coaching practice.</p>' : ''}
+    ${related.length ? `<div class="rel"><span class="fine">Related:</span>${related.slice(0, 2).map(r => `<button type="button">${esc(r.t)}</button>`).join('')}</div>` : ''}`, 'bot');
+}
+bubble(`<p class="lead">Ask me anything about the plan: training, food, sleep, weights.</p><p class="fine">I answer from the studies in this plan and say so when something isn't covered. I can't see your form, so use the Form check on each exercise.</p>`, 'bot');
+function openCoach(tab) { if (!dlg.open) dlg.showModal(); showCt(tab || 'ask'); }
+$('#coachFab').onclick = () => openCoach();
+$('#coachClose').onclick = () => dlg.close();
+dlg.addEventListener('click', e => {
+  if (e.target === dlg) { dlg.close(); return; }
+  const a = e.target.closest('a[href^="#"]'); if (a) { dlg.close(); return; }
+  const chip = e.target.closest('#chips button, .rel button'); if (chip) reply(chip.textContent);
+});
+$('#askForm').addEventListener('submit', e => { e.preventDefault(); const v = $('#askIn').value.trim(); if (!v) return; $('#askIn').value = ''; showCt('ask'); reply(v); });
+function showCt(t) {
+  $$('.coach-tabs button').forEach(b => b.setAttribute('aria-selected', b.dataset.ct === t));
+  $('#ctAsk').hidden = t !== 'ask'; $('#ctReview').hidden = t !== 'review';
+  if (t === 'review') renderReview();
+}
+$$('.coach-tabs button').forEach(b => b.onclick = () => showCt(b.dataset.ct));
+function renderReview() {
+  const checksByDay = {};
+  try {
+    for (let i = 0; i < localStorage.length; i++) {
+      const k = localStorage.key(i);
+      if (k && k.startsWith('vt-check-')) checksByDay[k.slice(9)] = JSON.parse(localStorage.getItem(k) || '{}');
+    }
+  } catch {}
+  const R = review(logs, checksByDay);
+  const item = (x, cls) => `<li class="${cls}"><b>${esc(x.t)}</b><p>${esc(x.why)}${x.gap ? '' : refLinks(x.r)}</p>${x.do ? `<p class="do">→ ${esc(x.do)}</p>` : ''}</li>`;
+  $('#ctReview').innerHTML = R.empty
+    ? `<div class="empty"><p class="lead">Nothing to review yet.</p><p>Tick the <a href="#today">Today</a> checklist and log your top set on each exercise card. After a couple of sessions I'll tell you what's working and what to fix.</p></div>`
+    : `<h4 class="ok">What's going well</h4><ul class="rv-list">${R.good.length ? R.good.map(x => item(x, 'g')).join('') : '<li class="fine">Nothing clear yet: keep logging.</li>'}</ul>
+       <h4 class="no">What to fix</h4><ul class="rv-list">${R.fix.length ? R.fix.map(x => item(x, 'f')).join('') : '<li class="fine">Nothing flagged. Keep going.</li>'}</ul>
+       <p class="fine">Based on this phone's checklist (last 7 days) and your weight log.</p>`;
+}
 
 calc(); renderTrain(); renderTray(); ring();
