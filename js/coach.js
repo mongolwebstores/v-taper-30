@@ -6,7 +6,7 @@
    keys: words/phrases that suggest this question (lowercase). a: short answer.
    why: the science in simple words. do: what to do. r: source numbers. gap: true when no source covers it. */
 export const KB = [
-  { t: 'Can ab exercises burn belly fat?', keys: ['belly', 'stomach', 'abs fat', 'belly fat', 'spot', 'lose belly', 'gut', 'love handles', 'six pack', 'sit up', 'crunches burn'],
+  { t: 'Can ab exercises burn belly fat?', keys: ['belly', 'stomach', 'abs fat', 'belly fat', 'spot', 'lose belly', 'losing my belly', 'not losing belly', 'my belly', 'gut', 'love handles', 'six pack', 'sit up', 'crunches burn'],
     a: 'No. You can\'t choose where fat comes off.',
     why: 'In a 6-week trial, people did ab exercises 5 days a week. Their abs got stronger, but belly fat and waist size didn\'t change. A 2022 review of many studies found the same for training any one body part.',
     do: 'Keep the calorie deficit. The belly shrinks as your total body fat goes down. Keep ab work for a strong core.', r: [9, 10] },
@@ -329,6 +329,7 @@ export function review(logs, checksByDay) {
   if (!names.length && !days.length) {
     return { empty: true, good, fix };
   }
+  if (names.length && !names.some(n => logs[n].length >= 2)) good.push({ t: `Logging started: ${names.length} exercise${names.length > 1 ? 's' : ''} so far.`, why: 'After the next session I can compare and tell you which lifts went up.', gap: true });
   if (up) good.push({ t: `${up} exercise${up > 1 ? 's' : ''} went up since last time.`, why: 'Adding reps or weight week after week is what makes muscle keep growing.', r: [1, 3] });
   if (flat.length) fix.push({ t: `No progress in 3 sessions: ${flat.slice(0, 3).join(', ')}.`, why: 'Before blaming the program, check rest (3 min beat 1 min for strength) and sleep.', do: 'Rest a full 2–3 min and aim for +1 rep. Still stuck? Drop 10% and build back.', r: [4, 5] });
   if (days.length) {

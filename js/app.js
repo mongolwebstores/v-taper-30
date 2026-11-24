@@ -1,5 +1,5 @@
 import { createBody } from './body3d.js?v=3';
-import { KB, FORM, patternOf, answer, parseRange, advise, review } from './coach.js?v=5';
+import { KB, FORM, patternOf, answer, parseRange, advise, review } from './coach.js?v=6';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
