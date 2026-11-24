@@ -1,0 +1,247 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>V-Taper 30 · Nanjing</title>
+<meta name="description" content="A 30-day fat-loss, chest and back plan with exercise animations, a canteen tray builder and the research behind it.">
+<meta name="theme-color" content="#101317">
+<link rel="preload" href="fonts/archivo.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<header class="bar">
+  <div class="bar-in">
+    <a class="logo" href="#top" aria-label="V-Taper 30 home"><span class="logo-v">V</span>TAPER<b>30</b></a>
+    <nav class="nav" aria-label="Sections">
+      <a href="#plan">Plan</a><a href="#train">Train</a><a href="#eat">Eat</a><a href="#today">Today</a><a href="#science">Science</a>
+    </nav>
+  </div>
+</header>
+
+<main id="top">
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-in">
+      <div class="hero-copy">
+        <p class="kicker">Nanjing · 30 days · 6 sessions a week</p>
+        <h1>Wider back.<br>Smaller waist.</h1>
+        <p class="lede">A month of lifting, walking and canteen eating built around one shape: the V. Drag the figure to turn it. Slide to see where the plan points.</p>
+        <div class="scrub">
+          <label for="dayRange">Day <output id="dayOut" class="mono">1</output> / 30</label>
+          <input id="dayRange" type="range" min="1" max="30" value="1">
+          <p class="fine">Illustration of the direction, not a prediction. Realistic 30-day result: about −2 kg, mostly fat.</p>
+        </div>
+        <div class="kpis">
+          <div><b class="mono" id="kKcal">2,100</b><span>kcal / day</span></div>
+          <div><b class="mono" id="kPro">145 g</b><span>protein / day</span></div>
+          <div><b class="mono">−0.5</b><span>kg / week</span></div>
+          <div><b class="mono">8 h</b><span>in bed</span></div>
+        </div>
+      </div>
+      <div class="stage hero-stage">
+        <canvas id="heroBody" aria-label="3D figure: drag to rotate"></canvas>
+        <div class="legend" id="heroLegend"></div>
+        <p class="nogl" hidden>3D view needs WebGL, which this browser has turned off.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLAN -->
+  <section id="plan" class="sec">
+    <div class="sec-head"><span class="tag">01</span><h2>The plan</h2></div>
+
+    <div class="grid2">
+      <div>
+        <h3>Where the sets go</h3>
+        <p class="muted">Hard sets per week, from week 1 to week 3. Back and side delts get the most, because they make the width of the V.</p>
+        <div class="bars" id="volBars"></div>
+        <p class="fine">10+ hard sets per muscle per week grows muscle;<sup><a href="#r1">1</a></sup> going above 20 hasn't clearly beaten 12–20.<sup><a href="#r2">2</a></sup></p>
+      </div>
+      <div>
+        <h3>The belly goes last</h3>
+        <div class="spot">
+          <div class="spot-fig" aria-hidden="true">
+            <svg viewBox="0 0 120 160"><path class="sil" d="M60 8c9 0 15 7 15 16s-6 15-15 15-15-6-15-15 6-16 15-16zM33 46c8-4 18-5 27-5s19 1 27 5c7 3 11 10 12 18l4 34c1 4-2 7-6 7s-6-3-6-6l-3-27c0 11 0 26-2 37l-3 30c-1 5-4 8-8 8s-7-3-7-7l-1-27h-4l-1 27c0 4-3 7-7 7s-7-3-8-8l-3-30c-2-11-2-26-2-37l-3 27c0 3-3 6-6 6s-7-3-6-7l4-34c1-8 5-15 12-18z"/><circle class="pulse" cx="60" cy="86" r="14"/></svg>
+          </div>
+          <p>Six weeks of daily ab training didn't shrink belly fat or waist size.<sup><a href="#r9">9</a></sup> A 2022 meta-analysis found the same for training any one spot.<sup><a href="#r10">10</a></sup> The waist comes in through the calorie deficit. Ab work stays for core strength.</p>
+        </div>
+      </div>
+    </div>
+
+    <h3>Your numbers</h3>
+    <div class="calc-wrap">
+      <div class="calc">
+        <label for="inAge">Age <span class="fine">(placeholder 21, change it)</span><input id="inAge" type="number" inputmode="numeric" value="21" min="15" max="70"></label>
+        <label for="inKg">Weight, kg<input id="inKg" type="number" inputmode="decimal" value="73" min="40" max="150" step="0.1"></label>
+        <label for="inCm">Height, cm<input id="inCm" type="number" inputmode="numeric" value="175" min="140" max="210"></label>
+      </div>
+      <div class="donut-wrap">
+        <svg class="donut" viewBox="0 0 42 42" aria-hidden="true">
+          <circle class="d-bg" cx="21" cy="21" r="15.9"/>
+          <circle id="dPro" class="d-seg d-pro" cx="21" cy="21" r="15.9"/>
+          <circle id="dFat" class="d-seg d-fat" cx="21" cy="21" r="15.9"/>
+          <circle id="dCarb" class="d-seg d-carb" cx="21" cy="21" r="15.9"/>
+        </svg>
+        <div class="donut-c"><b class="mono" id="dK">2,100</b><span>kcal</span></div>
+      </div>
+      <ul class="macro" id="macroList"></ul>
+    </div>
+    <p class="fine" id="mathLine"></p>
+    <p class="fine">Mifflin-St Jeor estimate × 1.55 activity, minus ~550 kcal.<sup><a href="#r13">13</a></sup> If your weekly average weight hasn't moved after 2 weeks, take off 150 kcal. Losing more than 1 kg a week: add 150. Slow loss kept more muscle than fast loss in lifters.<sup><a href="#r6">6</a></sup></p>
+
+    <h3>Four weeks, four gears</h3>
+    <ol class="gears" id="gears"></ol>
+    <p class="fine">RIR = reps in reserve, how many more clean reps you could do. Going to true failure every set hasn't beaten stopping 1–2 reps short.<sup><a href="#r3">3</a></sup></p>
+  </section>
+
+  <!-- TRAIN -->
+  <section id="train" class="sec">
+    <div class="sec-head"><span class="tag">02</span><h2>Train</h2></div>
+    <div class="train">
+      <aside class="train-side">
+        <div class="stage side-stage">
+          <canvas id="trainBody" aria-label="3D figure showing the muscles trained today"></canvas>
+          <div class="flip"><button type="button" data-face="front">Front</button><button type="button" data-face="back">Back</button></div>
+        </div>
+        <div class="seg" id="weekSel" role="group" aria-label="Week"></div>
+        <p class="weeknote" id="weekNote"></p>
+        <div class="days" id="daySel" role="group" aria-label="Day"></div>
+        <p class="fine">Rest 2–3 min on the first lift, 60–90 s on the rest. Longer rests gave more strength and growth than 1 min.<sup><a href="#r4">4</a></sup></p>
+      </aside>
+      <div class="train-main">
+        <div class="day-title"><h3 id="dayName">Push A</h3><span class="chip" id="dayFocus"></span></div>
+        <div id="exList" class="ex-list"></div>
+        <div class="cardio">
+          <h3>Cardio</h3>
+          <p>8–10k steps every day (a coaching target). After Pull A, Legs A and Pull B: 20–25 min incline walk, easy enough to talk.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- EAT -->
+  <section id="eat" class="sec">
+    <div class="sec-head"><span class="tag">03</span><h2>Eat</h2></div>
+    <div class="grid2 tray-zone">
+      <div>
+        <h3>Build a canteen tray</h3>
+        <p class="muted">Tap dishes to put them on the tray. Aim for about <b class="mono">35 g</b> protein and <b class="mono" id="mealK">525</b> kcal per meal (4 meals a day). Tap a slot to empty it.</p>
+        <div class="tray-3d">
+          <div class="tray" id="tray">
+            <button type="button" class="slot big" data-slot="0" aria-label="Rice slot"><span>米饭</span></button>
+            <button type="button" class="slot" data-slot="1" aria-label="Dish slot 1"><span>荤</span></button>
+            <button type="button" class="slot" data-slot="2" aria-label="Dish slot 2"><span>荤</span></button>
+            <button type="button" class="slot" data-slot="3" aria-label="Dish slot 3"><span>素</span></button>
+          </div>
+        </div>
+        <div class="meters">
+          <div class="meter"><div class="m-top"><span>Protein</span><b class="mono" id="mPro">0 / 35 g</b></div><div class="m-bar"><i id="mProBar"></i></div></div>
+          <div class="meter"><div class="m-top"><span>Energy</span><b class="mono" id="mKcal">0 / 525 kcal</b></div><div class="m-bar"><i id="mKcalBar" class="k"></i></div></div>
+          <p class="fine" id="mNote"></p>
+        </div>
+      </div>
+      <div>
+        <div class="dish-grid" id="dishGrid"></div>
+      </div>
+    </div>
+
+    <h3>Say it at the window</h3>
+    <div class="say" id="sayList"></div>
+
+    <h3>A training day, start to finish</h3>
+    <ol class="dayline" id="dayline"></ol>
+
+    <div class="grid2">
+      <div>
+        <h3>Convenience store picks</h3>
+        <ul class="ticks">
+          <li><b>即食鸡胸肉</b> ready-to-eat chicken breast: about 19–24 g protein per 100 g on pack labels.<sup><a href="#r19">19</a></sup> Choose plain or low-sodium.</li>
+          <li><b>茶叶蛋</b> tea eggs from the counter pot.</li>
+          <li><b>纯牛奶</b> milk, <b>无糖豆浆</b> unsweetened soy milk, high-protein yogurt (高蛋白酸奶).</li>
+          <li><b>关东煮</b>: eggs and tofu, not the fish balls and sausages.</li>
+        </ul>
+        <div class="label-tip">
+          <div class="label-card" aria-hidden="true">
+            <b>营养成分表</b>
+            <div><span>项目</span><span>每100克</span></div>
+            <div><span>能量</span><span>520 kJ</span></div>
+            <div class="hl"><span>蛋白质</span><span>24.0 g</span></div>
+            <div><span>脂肪</span><span>2.1 g</span></div>
+            <div><span>碳水化合物</span><span>0.8 g</span></div>
+            <div><span>钠</span><span>610 mg</span></div>
+          </div>
+          <p>Read the back of the pack. The <b>蛋白质</b> line is protein per 100 g; 能量 is energy in kJ (÷ 4.18 = kcal). Rule of thumb: 10 g+ protein per 100 kcal is a good protein food. <span class="fine">(Example label, not a real product.)</span></p>
+        </div>
+      </div>
+      <div>
+        <h3>Supplements, optional</h3>
+        <ul class="ticks">
+          <li><b>Creatine monohydrate, 3–5 g a day</b>, any time. The best-supported supplement for strength and training gains, and safe at this dose.<sup><a href="#r11">11</a></sup><sup><a href="#r12">12</a></sup></li>
+          <li><b>Whey</b> only to close a protein gap. Food first.</li>
+        </ul>
+        <h3>Cut these</h3>
+        <ul class="ticks x">
+          <li>Milk tea, juice, cola.</li>
+          <li>The oily sauce at the bottom of 红烧 and 干锅 dishes.</li>
+          <li>Late-night 外卖 and 烧烤.</li>
+        </ul>
+        <p class="fine">Canteen prices: a Nanjing community canteen charges ¥15–22 for one meat and three vegetables.<sup><a href="#r20">20</a></sup> No reliable university canteen figures found <span class="gap">[gap]</span>.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TODAY -->
+  <section id="today" class="sec">
+    <div class="sec-head"><span class="tag">04</span><h2>Today</h2></div>
+    <div class="today">
+      <div class="ring-wrap">
+        <svg viewBox="0 0 42 42" class="ring" aria-hidden="true"><circle class="d-bg" cx="21" cy="21" r="15.9"/><circle id="ringBar" class="ring-bar" cx="21" cy="21" r="15.9"/></svg>
+        <div class="donut-c"><b class="mono" id="ringNum">0/7</b><span id="todayDate"></span></div>
+      </div>
+      <ul class="checks" id="checks"></ul>
+    </div>
+    <div class="grid2">
+      <div class="sleep">
+        <h3>Sleep is training</h3>
+        <div class="sleep-bars">
+          <div><span class="mono">8.5 h</span><i style="--w:100%"></i><em>fat share of weight lost: baseline</em></div>
+          <div><span class="mono">5.5 h</span><i style="--w:45%"></i><em>55% less of it was fat</em></div>
+        </div>
+        <p class="fine">Same diet, two sleep lengths. Short sleep also meant more muscle lost and more hunger.<sup><a href="#r5">5</a></sup></p>
+      </div>
+      <div>
+        <h3>Every Sunday</h3>
+        <ul class="ticks">
+          <li>Weigh in every morning; compare <b>weekly averages</b>.</li>
+          <li>Waist at the belly button, relaxed.</li>
+          <li>Front, side and back photos, same light.</li>
+          <li>Best set on incline press, pulldown and row.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="warn">See a doctor first if you have a heart, joint or blood-pressure problem. Stop any exercise that causes sharp or joint pain and use the alternative. Muscle burn is normal.</p>
+  </section>
+
+  <!-- SCIENCE -->
+  <section id="science" class="sec">
+    <div class="sec-head"><span class="tag">05</span><h2>Science</h2></div>
+    <div class="findings" id="findings"></div>
+    <details class="refs-box" open>
+      <summary>Sources</summary>
+      <ol class="refs" id="refs"></ol>
+      <p class="fine">Research numbers are from abstracts and summaries, not full texts.</p>
+    </details>
+    <details class="refs-box">
+      <summary>Photo credits</summary>
+      <p class="fine">Exercise photos: <a href="https://github.com/yuhonas/free-exercise-db" target="_blank" rel="noopener">free-exercise-db</a> (public domain, Unlicense). Food photos from Wikimedia Commons:</p>
+      <ul class="credits" id="credits"></ul>
+    </details>
+  </section>
+</main>
+
+<footer class="foot"><p>Built for one person's 30 days. Not medical advice.</p></footer>
+
+<script type="module" src="js/app.js"></script>
+</body>
+</html>
