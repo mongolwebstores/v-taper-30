@@ -1,4 +1,4 @@
-import { createBody } from './body3d.js';
+import { createBody } from './body3d.js?v=3';
 
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
