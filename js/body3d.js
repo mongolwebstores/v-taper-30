@@ -70,8 +70,9 @@ export function createBody(canvas, opts = {}) {
   // Torso
   blob('back', [0, 1.5, -0.035], [0.2, 0.075, 0.11]);               // traps
   blob('base', [0, 1.3, 0], [0.235, 0.25, 0.145]);                   // ribcage
-  const chestL = blob('chest', [0.098, 1.375, 0.092], [0.118, 0.082, 0.062], [0, 0.18, -0.12]);
-  const chestR = blob('chest', [-0.098, 1.375, 0.092], [0.118, 0.082, 0.062], [0, -0.18, 0.12]);
+  // Pecs: wide, flat plates hugging the ribcage (not round)
+  const chestL = blob('chest', [0.092, 1.38, 0.085], [0.125, 0.07, 0.045], [0.15, 0.22, -0.18]);
+  const chestR = blob('chest', [-0.092, 1.38, 0.085], [0.125, 0.07, 0.045], [0.15, -0.22, 0.18]);
   const latL = blob('back', [0.185, 1.24, -0.045], [0.085, 0.19, 0.095], [0, 0, 0.32]);
   const latR = blob('back', [-0.185, 1.24, -0.045], [0.085, 0.19, 0.095], [0, 0, -0.32]);
   blob('back', [0, 1.3, -0.095], [0.18, 0.17, 0.07]);                // mid back
@@ -82,8 +83,9 @@ export function createBody(canvas, opts = {}) {
   blob('legs', [0.083, 0.86, -0.07], [0.098, 0.105, 0.085]);
   blob('legs', [-0.083, 0.86, -0.07], [0.098, 0.105, 0.085]);
   // Shoulders & arms
-  const deltL = blob('delts', [0.285, 1.445, 0], [0.083, 0.088, 0.088]);
-  const deltR = blob('delts', [-0.285, 1.445, 0], [0.083, 0.088, 0.088]);
+  // Delts: teardrop caps that flow into the upper arm
+  const deltL = blob('delts', [0.28, 1.43, 0], [0.068, 0.095, 0.075], [0, 0, 0.35]);
+  const deltR = blob('delts', [-0.28, 1.43, 0], [0.068, 0.095, 0.075], [0, 0, -0.35]);
   cap('arms', [0.315, 1.25, 0], 0.052, 0.2, [0, 0, 0.09]);
   cap('arms', [-0.315, 1.25, 0], 0.052, 0.2, [0, 0, -0.09]);
   cap('base', [0.338, 0.99, 0.02], 0.041, 0.21, [0, 0, 0.04]);
